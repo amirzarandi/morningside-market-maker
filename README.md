@@ -103,9 +103,6 @@ For small price movements, option prices are approximated using Taylor expansion
 
 $$V(S + \Delta S) \approx V(S) + \Delta \cdot \Delta S + \frac{1}{2}\Gamma \cdot (\Delta S)^2$$
 
-This approximation is used when:
-$$|\Delta S| < 0.1 \times \text{up\_move\_step}$$
-
 ### Random Walk Model
 
 The underlying asset follows a discrete random walk with:
