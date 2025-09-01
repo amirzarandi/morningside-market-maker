@@ -1,4 +1,4 @@
-#include "mm.cpp"
+#include "market_maker.hpp"
 #include <iostream>
 #include <iomanip>
 
@@ -13,7 +13,7 @@ void print_underlying_state(const UnderlyingVector& underlyings) {
     for (const auto& u_ptr : underlyings) {
         const auto& u = *u_ptr;
         std::cout << "  " << u.name << " (ID: " << u.underlying_id << "): $" 
-                  << std::fixed << std::setprecision(2) << u.valuation << "\n";
+                    << std::fixed << std::setprecision(2) << u.valuation << "\n";
     }
 }
 
@@ -29,7 +29,7 @@ void print_bid_ask(const Option& option, const BidAsk& quote) {
     const auto& [bid, ask] = quote;
     std::cout << "  " << option.to_string() << "\n";
     std::cout << "    Bid: $" << std::fixed << std::setprecision(4) << bid 
-              << ", Ask: $" << ask << ", Spread: $" << (ask - bid) << "\n";
+                << ", Ask: $" << ask << ", Spread: $" << (ask - bid) << "\n";
 }
 
 void print_position_summary(MarketMaker& mm) {
@@ -45,7 +45,7 @@ void print_position_summary(MarketMaker& mm) {
     for (const auto& [underlying_id, quantity] : mm.position.underlying_quantity_by_underlying_id) {
         if (std::abs(quantity) > 1e-6) {
             std::cout << "  Underlying " << underlying_id << ": " 
-                      << std::fixed << std::setprecision(4) << quantity << " shares\n";
+                        << std::fixed << std::setprecision(4) << quantity << " shares\n";
         }
     }
 }
@@ -95,14 +95,14 @@ OptionVector advance_options(const OptionVector& current_options) {
 }
 
 void print_market_movement(const UnderlyingVector& old_underlyings, 
-                          const UnderlyingVector& new_underlyings) {
+                            const UnderlyingVector& new_underlyings) {
     std::cout << "Market moves\n";
     for (size_t i = 0; i < new_underlyings.size(); ++i) {
         const auto& old_u = *old_underlyings[i];
         const auto& new_u = *new_underlyings[i];
         
         std::cout << "  " << new_u.name << ": $" << old_u.valuation 
-                  << " -> $" << std::fixed << std::setprecision(2) << new_u.valuation;
+                    << " -> $" << std::fixed << std::setprecision(2) << new_u.valuation;
         
         double change = new_u.valuation - old_u.valuation;
         std::cout << " (" << (change >= 0 ? "+" : "") << change << ")\n";
@@ -123,7 +123,7 @@ int main() {
 
         mm.register_trade_underlying_callback([](UnderlyingId id, Quantity qty) {
             std::cout << "  Trading underlying " << id << ": " 
-                      << std::fixed << std::setprecision(4) << qty << " shares\n";
+                        << std::fixed << std::setprecision(4) << qty << " shares\n";
         });
         
         print_separator("INITIAL MARKET MAKING");
@@ -142,12 +142,12 @@ int main() {
         
         auto call_quote = mm.make_market(option0);
         std::cout << "Client hits bid on " << option0.to_string() 
-                  << " at $" << std::get<0>(call_quote) << "\n";
+                    << " at $" << std::get<0>(call_quote) << "\n";
         mm.on_bid_hit(option0, std::get<0>(call_quote));
 
         auto put_quote = mm.make_market(option3);
         std::cout << "Client lifts offer on " << option3.to_string() 
-                  << " at $" << std::get<1>(put_quote) << "\n";
+                    << " at $" << std::get<1>(put_quote) << "\n";
         mm.on_offer_hit(option3, std::get<1>(put_quote));
         
         print_position_summary(mm);
